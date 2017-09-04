@@ -9,23 +9,24 @@ import nltk
 
 def get_reviews_vector(model,reviews):
     review_vector=zeros((len(reviews),1000))
-    for (i,review) in enumerate(reveiws):
+    for (i,review) in enumerate(reviews):
         nword=0
         for word in review:
-            review_vector[i]=review_vector[i]+model[word]
-            nword=nword+1
-        review_vector=review_vector/nword
+            if word in model:
+                review_vector[i,:]=review_vector[i,:]+model[word]
+                nword=nword+1
+        review_vector[i,:]=review_vector[i,:]/nword
     return review_vector
 
 def get_data(model,labeled_df,test_df):
     labeled_reviews=[];test_reviews=[]
     for review in labeled_df['review']:
-        labeled_reviews+=Word2VecUtil.review_to_wordlist(review)
+        labeled_reviews.append(Word2VecUtil.review_to_wordlist(review))
     for review in test_df['review']:
-        test_reviews+=Word2VecUtil.review_to_wordlist(review)
-    train_x=get_reviews_vector(labeled_reviews)
+        test_reviews.append(Word2VecUtil.review_to_wordlist(review))
+    train_x=get_reviews_vector(model,labeled_reviews)
     train_y=labeled_df['sentiment']
-    test_x=get_reviews_vector(test_reviews)
+    test_x=get_reviews_vector(model,test_reviews)
     return train_x,train_y,test_x
 
 if __name__ == '__main__':
@@ -36,5 +37,5 @@ if __name__ == '__main__':
     lr_model=LogisticRegression()
     lr_model.fit(train_x,train_y)
     pred_y=lr_model.predict(test_x)
-    submission=pd.DataFrame({'id':test_df['id'].values,'sentiment':pred_y})
-    submission.to_csv('submission.csv',index=False)
+    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    submission.to_csv('submission.csv',index=False,quoting=3)
