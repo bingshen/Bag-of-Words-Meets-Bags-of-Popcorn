@@ -16,3 +16,7 @@ Word2Vec的理论其实不复杂。他相当于是把n元模型优化成了神�
 题目链接：https://www.kaggle.com/c/word2vec-nlp-tutorial/data
 
 目前代码并没写完。暂时有工作上的事，先上传一部分。
+
+Update----
+
+根据自己的理解，尝试做一个word2vec的单模型预测
