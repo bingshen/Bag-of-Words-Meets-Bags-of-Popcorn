@@ -6,7 +6,8 @@ from gensim.models import Doc2Vec
 from gensim.models.doc2vec import LabeledSentence
 import os
 import nltk
-from numpy import *
+import numpy as np
+import random
 
 def get_label_sentence(dataframe):
     label_sentence=[]
@@ -30,8 +31,8 @@ if __name__ == '__main__':
     model_dm.build_vocab(total_train)
     model_bow.build_vocab(total_train)
     for epoch in range(10):
-        perm=random.permutation(total_train.shape[0])
-        model_dm.train(total_train[perm])
-        model_bow.train(total_train[perm])
+        perm=random.permutation(total_train)
+        model_dm.train(total_train,total_examples=model_dm.corpus_count,epochs=model_dm.iter)
+        model_bow.train(total_train,total_examples=model_bow.corpus_count,epochs=model_bow.iter)
     model_dm.save(model_dm_name)
     model_bow.save(model_bow_name)
