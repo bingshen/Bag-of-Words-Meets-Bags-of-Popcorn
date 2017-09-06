@@ -25,7 +25,7 @@ def get_data(model,labeled_df,test_df):
     for review in test_df['review']:
         test_reviews.append(Word2VecUtil.review_to_wordlist(review))
     train_x=get_reviews_vector(model,labeled_reviews)
-    train_y=labeled_df['sentiment']
+    train_y=labeled_df['sentiment'].values
     test_x=get_reviews_vector(model,test_reviews)
     return train_x,train_y,test_x
 

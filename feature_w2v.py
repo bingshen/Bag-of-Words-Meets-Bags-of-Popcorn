@@ -11,10 +11,10 @@ if __name__ == '__main__':
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
     model_name="1000features_5minwords_10context";sentences=[]
     for review in labeled_df['review']:
-        sentences.append(Word2VecUtil.review_to_wordlist(review))
+        sentences+=(Word2VecUtil.review_to_wordlist(review))
     for review in unlabeled_df['review']:
-        sentences.append(Word2VecUtil.review_to_wordlist(review))
+        sentences+=(Word2VecUtil.review_to_wordlist(review))
     for review in test_df['review']:
-        sentences.append(Word2VecUtil.review_to_wordlist(review))
+        sentences+=(Word2VecUtil.review_to_wordlist(review))
     model=Word2Vec(sentences,workers=8,size=1000,min_count=5,window=10)
     model.save(model_name)
