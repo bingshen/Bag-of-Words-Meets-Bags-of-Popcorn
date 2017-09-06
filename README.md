@@ -22,3 +22,4 @@ Word2Vec的理论其实不复杂。他相当于是把n元模型优化成了神�
 
 第二版本：
 	根据自己的理解，写了个doc2vec的单模型，还没试效果
+	修改了原代码bug：feature_d2v.py当中total_train的计算，查看源码后知道build_vocab这个函数的参数是一个LabeledSentence的列表，但是如果调用了concatenate或者vstack之后，原来的LabeledSentence结构列表会变成一个array。这样就没有words这个属性了，所以解决方法是让total_train直接等于那些列表做+运算
