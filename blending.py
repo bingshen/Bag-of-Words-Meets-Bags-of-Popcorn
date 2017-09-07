@@ -74,7 +74,7 @@ if __name__ == '__main__':
     val_x=hstack((val_feature1.reshape(-1,1),val_feature2.reshape(-1,1),val_feature3.reshape(-1,1)))
     test_x=hstack((test_feature1.reshape(-1,1),test_feature2.reshape(-1,1),test_feature3.reshape(-1,1)))
     lr_model=LogisticRegression()
-    lr_model.fit(val_x,test_x)
+    lr_model.fit(val_x,val_df['sentiment'].values)
     pred_y=lr_model.predict(test_x)
     submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
     submission.to_csv('submission.csv',index=False,quoting=3)
