@@ -5,7 +5,7 @@ from gensim.models import Word2Vec
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import LabeledSentence
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.preprocessing import scale
 import os
 import nltk
 from numpy import *
@@ -33,20 +33,20 @@ def get_data(model,train_df,val_df,test_df):
     train_y=train_df['sentiment'].values
     val_x=get_reviews_vector(model,val_reviews)
     test_x=get_reviews_vector(model,test_reviews)
-    return train_x,train_y,val_x,test_x
+    return scale(train_x),train_y,scale(val_x),scale(test_x)
 
 def get_data_array(model,dataframe):
     data_array=zeros((dataframe.values.shape[0],1000))
     for (i,label_id) in enumerate(dataframe['id'].values):
         data_array[i,:]=model.docvecs[label_id]
-    return data_array
+    return scale(data_array)
 
 def predict_model_proba1(model,train_df,val_df,test_df):
     train_x,train_y,val_x,test_x=get_data(model,train_df,val_df,test_df)
-    single_model=GradientBoostingClassifier(n_estimators=1000,max_depth=14)
-    single_model.fit(train_x,train_y)
-    val_feature=single_model.predict_proba(val_x)[:,1]
-    test_feature=single_model.predict_proba(test_x)[:,1]
+    lr_model=LogisticRegression()
+    lr_model.fit(train_x,train_y)
+    val_feature=lr_model.predict_proba(val_x)[:,1]
+    test_feature=lr_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 def predict_model_proba2(model,train_df,val_df,test_df):
@@ -54,10 +54,10 @@ def predict_model_proba2(model,train_df,val_df,test_df):
     train_y=train_df['sentiment'].values
     val_x=get_data_array(model,val_df)
     test_x=get_data_array(model,test_df)
-    single_model=GradientBoostingClassifier(n_estimators=1000,max_depth=14)
-    single_model.fit(train_x,train_y)
-    val_feature=single_model.predict_proba(val_x)[:,1]
-    test_feature=single_model.predict_proba(test_x)[:,1]
+    lr_model=LogisticRegression()
+    lr_model.fit(train_x,train_y)
+    val_feature=lr_model.predict_proba(val_x)[:,1]
+    test_feature=lr_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 if __name__ == '__main__':
@@ -69,13 +69,9 @@ if __name__ == '__main__':
     model1=Word2Vec.load("1000features_5minwords_10context")
     model2=Doc2Vec.load("1000features_1minwords_10context_dm")
     model3=Doc2Vec.load("1000features_1minwords_10context_bow")
-    print("data and model load over!")
     val_feature1,test_feature1=predict_model_proba1(model1,train_df,val_df,test_df)
-    print("feature1 calculate over!")
     val_feature2,test_feature2=predict_model_proba2(model2,train_df,val_df,test_df)
-    print("feature2 calculate over!")
     val_feature3,test_feature3=predict_model_proba2(model3,train_df,val_df,test_df)
-    print("feature3 calculate over!")
     val_x=hstack((val_feature1.reshape(-1,1),val_feature2.reshape(-1,1),val_feature3.reshape(-1,1)))
     test_x=hstack((test_feature1.reshape(-1,1),test_feature2.reshape(-1,1),test_feature3.reshape(-1,1)))
     lr_model=LogisticRegression()
