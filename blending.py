@@ -44,8 +44,8 @@ def predict_model_proba1(model,train_df,val_df,test_df):
     train_x,train_y,val_x,test_x=get_data(model,train_df,val_df,test_df)
     lr_model=LogisticRegression()
     lr_model.fit(train_x,train_y)
-    val_feature=lr_model.predict_proba(val_x)[1]
-    test_feature=lr_model.predict_proba(test_x)[1]
+    val_feature=lr_model.predict_proba(val_x)[:,1]
+    test_feature=lr_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 def predict_model_proba2(model,train_df,val_df,test_df):
@@ -55,8 +55,8 @@ def predict_model_proba2(model,train_df,val_df,test_df):
     test_x=get_data_array(model,test_df)
     lr_model=LogisticRegression()
     lr_model.fit(train_x,train_y)
-    val_feature=lr_model.predict_proba(val_x)[1]
-    test_feature=lr_model.predict_proba(test_x)[1]
+    val_feature=lr_model.predict_proba(val_x)[:,1]
+    test_feature=lr_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 if __name__ == '__main__':
@@ -71,4 +71,10 @@ if __name__ == '__main__':
     val_feature1,test_feature1=predict_model_proba1(model1,train_df,val_df,test_df)
     val_feature2,test_feature2=predict_model_proba2(model2,train_df,val_df,test_df)
     val_feature3,test_feature3=predict_model_proba2(model3,train_df,val_df,test_df)
-    print(shape(val_feature1),shape(test_feature1))
+    val_x=hstack((val_feature1,val_feature2,val_feature3))
+    test_x=hstack((test_feature1,test_feature2,test_feature3))
+    lr_model=LogisticRegression()
+    lr_model.fit(val_x,test_x)
+    pred_y=lr_model.predict(test_x)
+    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    submission.to_csv('submission.csv',index=False,quoting=3)
