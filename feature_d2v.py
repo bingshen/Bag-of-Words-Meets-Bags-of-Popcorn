@@ -26,13 +26,14 @@ if __name__ == '__main__':
     unlabeled_sentence=get_label_sentence(unlabeled_df)
     test_sentence=get_label_sentence(test_df)
     total_train=labeled_sentence+unlabeled_sentence+test_sentence
-    model_dm=Doc2Vec(workers=4,size=1000,min_count=1,window=10,dm=1)
-    model_bow=Doc2Vec(workers=4,size=1000,min_count=1,window=10,dm=0)
+    model_dm=Doc2Vec(workers=8,size=1000,min_count=1,window=10,dm=1)
+    model_bow=Doc2Vec(workers=8,size=1000,min_count=1,window=10,dm=0)
     model_dm.build_vocab(total_train)
     model_bow.build_vocab(total_train)
     for epoch in range(10):
         perm=random.shuffle(total_train)
         model_dm.train(total_train,total_examples=model_dm.corpus_count,epochs=model_dm.iter)
         model_bow.train(total_train,total_examples=model_bow.corpus_count,epochs=model_bow.iter)
+        print("epoch %d is over"%epoch)
     model_dm.save(model_dm_name)
     model_bow.save(model_bow_name)

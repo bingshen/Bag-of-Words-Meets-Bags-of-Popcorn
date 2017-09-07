@@ -1,1 +1,4 @@
 data/
+1000features_1minwords_10context_bow
+1000features_1minwords_10context_dm
+*.npy

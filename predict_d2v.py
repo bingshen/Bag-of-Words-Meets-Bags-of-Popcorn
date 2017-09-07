@@ -10,9 +10,9 @@ import nltk
 from numpy import *
 
 def get_data_array(model,dataframe):
-    data_array=zero((dataframe.values.shape[0],1000))
-    for (i,label_id) in enumerate(dataframe['review'].values):
-        data_array[i,:]=model[label_id]
+    data_array=zeros((dataframe.values.shape[0],1000))
+    for (i,label_id) in enumerate(dataframe['id'].values):
+        data_array[i,:]=model.docvecs[label_id]
     return data_array
 
 if __name__ == '__main__':
