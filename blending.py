@@ -5,6 +5,7 @@ from gensim.models import Word2Vec
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import LabeledSentence
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingClassifier
 import os
 import nltk
 from numpy import *
@@ -42,10 +43,10 @@ def get_data_array(model,dataframe):
 
 def predict_model_proba1(model,train_df,val_df,test_df):
     train_x,train_y,val_x,test_x=get_data(model,train_df,val_df,test_df)
-    lr_model=LogisticRegression()
-    lr_model.fit(train_x,train_y)
-    val_feature=lr_model.predict_proba(val_x)[:,1]
-    test_feature=lr_model.predict_proba(test_x)[:,1]
+    single_model=GradientBoostingClassifier(n_estimators=1000,max_depth=14)
+    single_model.fit(train_x,train_y)
+    val_feature=single_model.predict_proba(val_x)[:,1]
+    test_feature=single_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 def predict_model_proba2(model,train_df,val_df,test_df):
@@ -53,10 +54,10 @@ def predict_model_proba2(model,train_df,val_df,test_df):
     train_y=train_df['sentiment'].values
     val_x=get_data_array(model,val_df)
     test_x=get_data_array(model,test_df)
-    lr_model=LogisticRegression()
-    lr_model.fit(train_x,train_y)
-    val_feature=lr_model.predict_proba(val_x)[:,1]
-    test_feature=lr_model.predict_proba(test_x)[:,1]
+    single_model=GradientBoostingClassifier(n_estimators=1000,max_depth=14)
+    single_model.fit(train_x,train_y)
+    val_feature=single_model.predict_proba(val_x)[:,1]
+    test_feature=single_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 if __name__ == '__main__':
