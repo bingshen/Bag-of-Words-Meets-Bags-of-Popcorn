@@ -12,7 +12,7 @@ class Word2VecUtil(object):
         review_text=BeautifulSoup(review,"lxml").get_text()
         review_text=re.sub('n\'t',' not',review_text)
         review_text=re.sub('[^a-zA-z]',' ',review_text)
-        words=review_text.lower().split();word_list=[]
+        words=review_text.lower().split()
         return words
     @staticmethod
     def review_to_sentences(review):

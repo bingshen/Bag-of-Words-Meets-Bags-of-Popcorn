@@ -38,10 +38,15 @@ def make_reviews(labeled_df,test_df):
     return labeled_reviews,test_reviews
 
 def get_vector(labeled_reviews,test_reviews):
-    vectorizer=TfidfVectorizer(ngram_range=(1,3))
-    vectorizer.fit(labeled_reviews)
-    train_tfidf_x=vectorizer.transform(labeled_reviews)
-    test_tfidf_x=vectorizer.transform(test_reviews)
+    vectorizer=TfidfVectorizer(ngram_range=(1,3),sublinear_tf=True)
+    labeled_string,test_string=[],[]
+    for review in labeled_reviews:
+        labeled_string.append(" ".join(review))
+    for review in test_string:
+        test_string.append(" ".join(review))
+    vectorizer.fit(labeled_string)
+    train_tfidf_x=vectorizer.transform(labeled_string)
+    test_tfidf_x=vectorizer.transform(test_string)
     return train_tfidf_x,test_tfidf_x
 
 # 这种融合方法直接让所有的特征拼在一起
@@ -62,6 +67,7 @@ if __name__ == '__main__':
     train_x=sparse.hstack((train_w2v_x,train_dm_x,train_bow_x,train_tfidf_x))
     test_x=sparse.hstack((test_w2v_x,test_dm_x,test_bow_x,test_tfidf_x))
     train_y=labeled_df['sentiment'].values
+    print(shape(train_x),shape(test_x))
     lr_model=LogisticRegression()
     lr_model.fit(train_x,train_y)
     pred_y=lr_model.predict(test_x)
