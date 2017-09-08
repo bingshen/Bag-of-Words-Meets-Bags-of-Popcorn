@@ -4,7 +4,8 @@
 
 题目链接：https://www.kaggle.com/c/word2vec-nlp-tutorial/data
 
-解法是用word2vec、doc2vec。然后用LR进行模型融合。目前成绩是0.91+不算特别理想，后期打算加入tf-idf进行训练
-
-单模型情况：word2vec+LR单模型成绩为0.883+ doc2vec+LR单模型成绩0.90+
-两个单模型结果再次线性组合（LR）可以得到0.91+
+成绩：
+	word2vec+LR:0.88364
+	doc2vec_dm+doc2vec_bow+LR:0.90336
+	word2vec+doc2vec_dm+doc2vec_bow+LR:0.91392 //线性模型后，用LR再次线性融合
+	word2vec+doc2vec_dm+doc2vec_bow+tf-idf+LR:0.89616 //直接把所有特征拼接起来，然后LR
