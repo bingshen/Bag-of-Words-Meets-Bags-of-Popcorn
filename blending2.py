@@ -42,7 +42,7 @@ def get_vector(labeled_reviews,test_reviews):
     labeled_string,test_string=[],[]
     for review in labeled_reviews:
         labeled_string.append(" ".join(review))
-    for review in test_string:
+    for review in test_reviews:
         test_string.append(" ".join(review))
     vectorizer.fit(labeled_string)
     train_tfidf_x=vectorizer.transform(labeled_string)
