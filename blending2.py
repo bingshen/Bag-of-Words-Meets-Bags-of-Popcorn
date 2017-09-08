@@ -8,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import scale
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy import sparse
+import h5py
 import os
 import nltk
 from numpy import *
@@ -70,6 +71,8 @@ if __name__ == '__main__':
     print(shape(train_x),shape(test_x))
     lr_model=LogisticRegression()
     lr_model.fit(train_x,train_y)
-    pred_y=lr_model.predict(test_x)
-    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
-    submission.to_csv('submission.csv',index=False,quoting=3)
+    pred_y=lr_model.predict_proba(test_x)[:,1]
+    with h5py.File("pred2") as h:
+        h.create_dataset("pred",data=pred_y)
+    # submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    # submission.to_csv('submission.csv',index=False,quoting=3)

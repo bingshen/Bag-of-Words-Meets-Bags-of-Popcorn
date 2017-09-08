@@ -8,6 +8,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import scale
 import os
 import nltk
+import h5py
 from numpy import *
 
 def get_reviews_vector(model,reviews):
@@ -77,5 +78,7 @@ if __name__ == '__main__':
     lr_model=LogisticRegression()
     lr_model.fit(val_x,val_df['sentiment'].values)
     pred_y=lr_model.predict(test_x)
-    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
-    submission.to_csv('submission.csv',index=False,quoting=3)
+    with h5py.File("pred1") as h:
+        h.create_dataset("pred",data=pred_y)
+    # submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    # submission.to_csv('submission.csv',index=False,quoting=3)
