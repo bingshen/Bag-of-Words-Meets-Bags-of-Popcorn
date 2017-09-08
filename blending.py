@@ -22,14 +22,14 @@ def get_reviews_vector(model,reviews):
     return review_vector
 
 def get_data(model,train_df,val_df,test_df):
-    labeled_reviews=[];val_reviews=[];test_reviews=[]
+    train_reviews=[];val_reviews=[];test_reviews=[]
     for review in train_df['review']:
-        labeled_reviews.append(Word2VecUtil.review_to_wordlist(review))
+        train_reviews.append(Word2VecUtil.review_to_wordlist(review))
     for review in val_df['review']:
         val_reviews.append(Word2VecUtil.review_to_wordlist(review))
     for review in test_df['review']:
         test_reviews.append(Word2VecUtil.review_to_wordlist(review))
-    train_x=get_reviews_vector(model,labeled_reviews)
+    train_x=get_reviews_vector(model,train_reviews)
     train_y=train_df['sentiment'].values
     val_x=get_reviews_vector(model,val_reviews)
     test_x=get_reviews_vector(model,test_reviews)
