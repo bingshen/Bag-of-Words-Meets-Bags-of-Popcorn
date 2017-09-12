@@ -10,7 +10,7 @@ import nltk
 from numpy import *
 
 def get_data_array(model,dataframe):
-    data_array=zeros((dataframe.values.shape[0],1000))
+    data_array=zeros((dataframe.values.shape[0],5000))
     for (i,label_id) in enumerate(dataframe['id'].values):
         data_array[i,:]=model.docvecs[label_id]
     return data_array
@@ -18,8 +18,8 @@ def get_data_array(model,dataframe):
 if __name__ == '__main__':
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
-    model_dm_name="1000features_1minwords_10context_dm"
-    model_bow_name="1000features_1minwords_10context_bow"
+    model_dm_name="5000features_1minwords_10context_dm"
+    model_bow_name="5000features_1minwords_10context_bow"
     model_dm=Doc2Vec.load(model_dm_name)
     model_bow=Doc2Vec.load(model_bow_name)
     dm_train_x=get_data_array(model_dm,labeled_df)

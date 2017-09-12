@@ -12,7 +12,7 @@ import h5py
 from numpy import *
 
 def get_reviews_vector(model,reviews):
-    review_vector=zeros((len(reviews),1000))
+    review_vector=zeros((len(reviews),5000))
     for (i,review) in enumerate(reviews):
         nword=0
         for word in review:
@@ -37,7 +37,7 @@ def get_data(model,train_df,val_df,test_df):
     return scale(train_x),train_y,scale(val_x),scale(test_x)
 
 def get_data_array(model,dataframe):
-    data_array=zeros((dataframe.values.shape[0],1000))
+    data_array=zeros((dataframe.values.shape[0],5000))
     for (i,label_id) in enumerate(dataframe['id'].values):
         data_array[i,:]=model.docvecs[label_id]
     return scale(data_array)
@@ -65,20 +65,25 @@ if __name__ == '__main__':
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
     # 数据切分操作
-    train_df=labeled_df.iloc[0:20000]
-    val_df=labeled_df.iloc[20000:]
-    model1=Word2Vec.load("1000features_5minwords_10context")
-    model2=Doc2Vec.load("1000features_1minwords_10context_dm")
-    model3=Doc2Vec.load("1000features_1minwords_10context_bow")
+    train_df=labeled_df.iloc[0:22500]
+    val_df=labeled_df.iloc[22500:]
+    model1=Word2Vec.load("5000features_5minwords_10context")
+    model2=Doc2Vec.load("5000features_1minwords_10context_dm")
+    model3=Doc2Vec.load("5000features_1minwords_10context_bow")
+    print("load model over")
     val_feature1,test_feature1=predict_model_proba1(model1,train_df,val_df,test_df)
+    print("train w2c_model over")
     val_feature2,test_feature2=predict_model_proba2(model2,train_df,val_df,test_df)
+    print("train d2c_dm_model over")
     val_feature3,test_feature3=predict_model_proba2(model3,train_df,val_df,test_df)
+    print("train d2c_bow_model over")
     val_x=hstack((val_feature1.reshape(-1,1),val_feature2.reshape(-1,1),val_feature3.reshape(-1,1)))
     test_x=hstack((test_feature1.reshape(-1,1),test_feature2.reshape(-1,1),test_feature3.reshape(-1,1)))
     lr_model=LogisticRegression()
     lr_model.fit(val_x,val_df['sentiment'].values)
     pred_y=lr_model.predict(test_x)
-    with h5py.File("pred1") as h:
-        h.create_dataset("pred",data=pred_y)
-    # submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
-    # submission.to_csv('submission.csv',index=False,quoting=3)
+    print("train blending over")
+    # with h5py.File("pred1.h5") as h:
+    #     h.create_dataset("pred",data=pred_y)
+    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    submission.to_csv('submission.csv',index=False,quoting=3)

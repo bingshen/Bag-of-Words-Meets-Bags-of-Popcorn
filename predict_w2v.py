@@ -8,7 +8,7 @@ import os
 import nltk
 
 def get_reviews_vector(model,reviews):
-    review_vector=zeros((len(reviews),1000))
+    review_vector=zeros((len(reviews),5000))
     for (i,review) in enumerate(reviews):
         nword=0
         for word in review:
@@ -30,12 +30,14 @@ def get_data(model,labeled_df,test_df):
     return train_x,train_y,test_x
 
 if __name__ == '__main__':
-    model=Word2Vec.load("1000features_5minwords_10context")
+    model=Word2Vec.load("5000features_5minwords_10context")
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
     train_x,train_y,test_x=get_data(model,labeled_df,test_df)
     lr_model=LogisticRegression()
     lr_model.fit(train_x,train_y)
     pred_y=lr_model.predict(test_x)
-    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
-    submission.to_csv('submission.csv',index=False,quoting=3)
+    print(pred_y[0])
+    print(lr_model.predict_proba(test_x)[0])
+    # submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    # submission.to_csv('submission.csv',index=False,quoting=3)

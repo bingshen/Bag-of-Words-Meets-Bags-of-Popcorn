@@ -1,11 +1,12 @@
 import h5py
 import numpy as np
+import pandas as pd
 
 if __name__ == '__main__':
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
-    with h5py.File("model\\pred1.h5",'r') as h:
+    with h5py.File("pred1.h5",'r') as h:
         pred1=np.array(h['pred'])
-    with h5py.File("model\\pred2.h5",'r') as h:
+    with h5py.File("pred2.h5",'r') as h:
         pred2=np.array(h['pred'])
     pred=(pred1+pred2)/2.0
     sentiment=[]
