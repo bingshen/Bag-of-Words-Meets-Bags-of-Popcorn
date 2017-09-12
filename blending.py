@@ -5,11 +5,18 @@ from gensim.models import Word2Vec
 from gensim.models import Doc2Vec
 from gensim.models.doc2vec import LabeledSentence
 from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import SGDClassifier as SGD
+from sklearn.grid_search import GridSearchCV
 from sklearn.preprocessing import scale
 import os
 import nltk
 import h5py
 from numpy import *
+
+def get_sgd_model():
+    sgd_params={'alpha':[0.00006,0.00007,0.00008,0.0001,0.0005]}
+    model_SGD=GridSearchCV(SGD(random_state=0,shuffle=True,loss='modified_huber'),sgd_params,scoring='roc_auc',cv=20)
+    return model_SGD
 
 def get_reviews_vector(model,reviews):
     review_vector=zeros((len(reviews),400))
@@ -44,10 +51,10 @@ def get_data_array(model,dataframe):
 
 def predict_model_proba1(model,train_df,val_df,test_df):
     train_x,train_y,val_x,test_x=get_data(model,train_df,val_df,test_df)
-    lr_model=LogisticRegression()
-    lr_model.fit(train_x,train_y)
-    val_feature=lr_model.predict_proba(val_x)[:,1]
-    test_feature=lr_model.predict_proba(test_x)[:,1]
+    sgd_model=get_sgd_model()
+    sgd_model.fit(train_x,train_y)
+    val_feature=sgd_model.predict_proba(val_x)[:,1]
+    test_feature=sgd_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 def predict_model_proba2(model,train_df,val_df,test_df):
@@ -55,10 +62,10 @@ def predict_model_proba2(model,train_df,val_df,test_df):
     train_y=train_df['sentiment'].values
     val_x=get_data_array(model,val_df)
     test_x=get_data_array(model,test_df)
-    lr_model=LogisticRegression()
-    lr_model.fit(train_x,train_y)
-    val_feature=lr_model.predict_proba(val_x)[:,1]
-    test_feature=lr_model.predict_proba(test_x)[:,1]
+    sgd_model=get_sgd_model()
+    sgd_model.fit(train_x,train_y)
+    val_feature=sgd_model.predict_proba(val_x)[:,1]
+    test_feature=sgd_model.predict_proba(test_x)[:,1]
     return val_feature,test_feature
 
 if __name__ == '__main__':
