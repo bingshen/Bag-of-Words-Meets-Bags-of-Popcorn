@@ -7,6 +7,9 @@ from gensim.models.doc2vec import LabeledSentence
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import scale
 from sklearn.feature_extraction.text import TfidfVectorizer
+from keras.layers import Dense,Dropout,Activation,Input
+from keras.models import Sequential,Model
+from sklearn.model_selection import train_test_split
 from scipy import sparse
 import h5py
 import os
@@ -50,6 +53,16 @@ def get_vector(labeled_reviews,test_reviews):
     test_tfidf_x=vectorizer.transform(test_string)
     return train_tfidf_x,test_tfidf_x
 
+def make_deep_model(InputSize):
+    deepModel=Sequential()
+    deepModel.add(Dense(units=1000,activation='relu',input_shape=(InputSize,)))
+    deepModel.add(Dropout(0.5))
+    deepModel.add(Dense(units=300,activation='relu'))
+    deepModel.add(Dropout(0.2))
+    deepModel.add(Dense(units=2,activation="softmax"))
+    deepModel.compile(optimizer='adam',loss='categorical_crossentropy',metrics=['accuracy'])
+    return deepModel
+
 # 这种融合方法直接让所有的特征拼在一起
 if __name__ == '__main__':
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
@@ -68,11 +81,14 @@ if __name__ == '__main__':
     train_x=sparse.hstack((train_w2v_x,train_dm_x,train_bow_x,train_tfidf_x))
     test_x=sparse.hstack((test_w2v_x,test_dm_x,test_bow_x,test_tfidf_x))
     train_y=labeled_df['sentiment'].values
-    print(shape(train_x),shape(test_x))
-    lr_model=LogisticRegression()
-    lr_model.fit(train_x,train_y)
-    pred_y=lr_model.predict_proba(test_x)[:,1]
-    with h5py.File("pred2.h5") as h:
-        h.create_dataset("pred",data=pred_y)
-    # submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
-    # submission.to_csv('submission.csv',index=False,quoting=3)
+    fit_x,fit_y,val_x,val_y=train_test_split(train_x,train_y,test_size=0.1,random_state=0)
+    deepModel=make_deep_model(train_x.shape[1])
+    deepModel.fit(fit_x,fit_y,batch_size=32,epochs=100,verbose=1,validation_data=(val_x,val_y),shuffle=True)
+    pred_y=deepModel.predict(test_x)
+    # lr_model=LogisticRegression()
+    # lr_model.fit(train_x,train_y)
+    # pred_y=lr_model.predict_proba(test_x)[:,1]
+    # with h5py.File("pred2.h5") as h:
+    #     h.create_dataset("pred",data=pred_y)
+    submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
+    submission.to_csv('submission.csv',index=False,quoting=3)
