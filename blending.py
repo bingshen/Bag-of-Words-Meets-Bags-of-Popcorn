@@ -65,11 +65,19 @@ if __name__ == '__main__':
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
     # 数据切分操作
+<<<<<<< HEAD
     train_df=labeled_df.iloc[0:22500]
     val_df=labeled_df.iloc[22500:]
     model1=Word2Vec.load("5000features_5minwords_10context")
     model2=Doc2Vec.load("5000features_1minwords_10context_dm")
     model3=Doc2Vec.load("5000features_1minwords_10context_bow")
+=======
+    train_df=labeled_df.iloc[0:20000]
+    val_df=labeled_df.iloc[20000:]
+    model1=Word2Vec.load("1000features_5minwords_10context")
+    model2=Doc2Vec.load("1000features_1minwords_10context_dm")
+    model3=Doc2Vec.load("1000features_1minwords_10context_bow")
+>>>>>>> f5b041e90c818da247169e06e165342407a5a2be
     print("load model over")
     val_feature1,test_feature1=predict_model_proba1(model1,train_df,val_df,test_df)
     print("train w2c_model over")
@@ -81,6 +89,7 @@ if __name__ == '__main__':
     test_x=hstack((test_feature1.reshape(-1,1),test_feature2.reshape(-1,1),test_feature3.reshape(-1,1)))
     lr_model=LogisticRegression()
     lr_model.fit(val_x,val_df['sentiment'].values)
+    print("train blending over")
     pred_y=lr_model.predict(test_x)
     print("train blending over")
     # with h5py.File("pred1.h5") as h:
