@@ -51,18 +51,18 @@ def get_vector(labeled_reviews,test_reviews):
     vectorizer.fit(labeled_string)
     train_tfidf_x=vectorizer.transform(labeled_string)
     test_tfidf_x=vectorizer.transform(test_string)
-    return scale(train_tfidf_x),scale(test_tfidf_x)
+    return train_tfidf_x,test_tfidf_x
 
 def one_hot_y(y_label):
     ret=zeros((y_label.shape[0],2))
     for (i,y) in enumerate(y_label):
         ret[i,y]=1
-    return ret[i,y]
+    return ret
 
 def onehot_sample(pred):
     ret=[]
     for [x1,x2] in pred:
-        if x1>0:
+        if x1>x2:
             ret.append(0)
         else:
             ret.append(1)
@@ -101,15 +101,18 @@ if __name__ == '__main__':
     test_x=sparse.hstack((test_w2v_x,test_dm_x,test_bow_x,test_tfidf_x))
     print("tfidf load over")
     train_y=one_hot_y(labeled_df['sentiment'].values)
+    print(shape(train_x),shape(train_y))
     fit_x,val_x,fit_y,val_y=train_test_split(train_x,train_y,test_size=0.1,random_state=0)
+    print(shape(fit_x),shape(val_x),shape(fit_y),shape(val_y))
     deepModel=make_deep_model(train_x.shape[1])
-    deepModel.fit(fit_x,fit_y,batch_size=32,epochs=100,verbose=1,validation_data=(val_x,val_y),shuffle=True)
-    pred=deepModel.predict(test_x)
+    deepModel.fit(fit_x.toarray(),fit_y,batch_size=256,epochs=15,verbose=1,validation_data=(val_x.toarray(),val_y),shuffle=True)
+    pred=deepModel.predict(test_x.toarray())
     # lr_model=LogisticRegression()
     # lr_model.fit(train_x,train_y)
     # pred_y=lr_model.predict_proba(test_x)[:,1]
     # with h5py.File("pred2.h5") as h:
     #     h.create_dataset("pred",data=pred_y)
+    print(pred)
     pred_y=onehot_sample(pred)
     submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
     submission.to_csv('submission.csv',index=False,quoting=3)
