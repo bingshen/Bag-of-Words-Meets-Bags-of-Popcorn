@@ -14,7 +14,7 @@ import nltk
 from numpy import *
 
 def get_reviews_vector(model,reviews):
-    review_vector=zeros((len(reviews),5000))
+    review_vector=zeros((len(reviews),400))
     for (i,review) in enumerate(reviews):
         nword=0
         for word in review:
@@ -25,7 +25,7 @@ def get_reviews_vector(model,reviews):
     return review_vector
 
 def get_data_array(model,dataframe):
-    data_array=zeros((dataframe.values.shape[0],5000))
+    data_array=zeros((dataframe.values.shape[0],400))
     for (i,label_id) in enumerate(dataframe['id'].values):
         data_array[i,:]=model.docvecs[label_id]
     return scale(data_array)
@@ -54,9 +54,9 @@ def get_vector(labeled_reviews,test_reviews):
 if __name__ == '__main__':
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
-    model1=Word2Vec.load("5000features_5minwords_10context")
-    model2=Doc2Vec.load("5000features_1minwords_10context_dm")
-    model3=Doc2Vec.load("5000features_1minwords_10context_bow")
+    model1=Word2Vec.load("400features_5minwords_10context")
+    model2=Doc2Vec.load("400features_1minwords_10context_dm")
+    model3=Doc2Vec.load("400features_1minwords_10context_bow")
     labeled_reviews,test_reviews=make_reviews(labeled_df,test_df)
     train_w2v_x=scale(get_reviews_vector(model1,labeled_reviews))
     test_w2v_x=scale(get_reviews_vector(model1,test_reviews))

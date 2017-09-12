@@ -12,7 +12,7 @@ import h5py
 from numpy import *
 
 def get_reviews_vector(model,reviews):
-    review_vector=zeros((len(reviews),5000))
+    review_vector=zeros((len(reviews),400))
     for (i,review) in enumerate(reviews):
         nword=0
         for word in review:
@@ -37,7 +37,7 @@ def get_data(model,train_df,val_df,test_df):
     return scale(train_x),train_y,scale(val_x),scale(test_x)
 
 def get_data_array(model,dataframe):
-    data_array=zeros((dataframe.values.shape[0],5000))
+    data_array=zeros((dataframe.values.shape[0],400))
     for (i,label_id) in enumerate(dataframe['id'].values):
         data_array[i,:]=model.docvecs[label_id]
     return scale(data_array)
@@ -67,9 +67,9 @@ if __name__ == '__main__':
     # 数据切分操作
     train_df=labeled_df.iloc[0:22500]
     val_df=labeled_df.iloc[22500:]
-    model1=Word2Vec.load("5000features_5minwords_10context")
-    model2=Doc2Vec.load("5000features_1minwords_10context_dm")
-    model3=Doc2Vec.load("5000features_1minwords_10context_bow")
+    model1=Word2Vec.load("400features_5minwords_10context")
+    model2=Doc2Vec.load("400features_1minwords_10context_dm")
+    model3=Doc2Vec.load("400features_1minwords_10context_bow")
     print("load model over")
     val_feature1,test_feature1=predict_model_proba1(model1,train_df,val_df,test_df)
     print("train w2c_model over")

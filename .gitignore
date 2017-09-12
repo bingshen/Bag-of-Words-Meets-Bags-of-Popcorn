@@ -5,5 +5,8 @@ data/
 5000features_1minwords_10context_bow
 5000features_1minwords_10context_dm
 5000features_5minwords_10context
+400features_1minwords_10context_bow
+400features_1minwords_10context_dm
+400features_5minwords_10context
 *.npy
 *.h5
