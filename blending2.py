@@ -51,7 +51,22 @@ def get_vector(labeled_reviews,test_reviews):
     vectorizer.fit(labeled_string)
     train_tfidf_x=vectorizer.transform(labeled_string)
     test_tfidf_x=vectorizer.transform(test_string)
-    return train_tfidf_x,test_tfidf_x
+    return scale(train_tfidf_x),scale(test_tfidf_x)
+
+def one_hot_y(y_label):
+    ret=zeros((y_label.shape[0],2))
+    for (i,y) in enumerate(y_label):
+        ret[i,y]=1
+    return ret[i,y]
+
+def onehot_sample(pred):
+    ret=[]
+    for [x1,x2] in pred:
+        if x1>0:
+            ret.append(0)
+        else:
+            ret.append(1)
+    return ret
 
 def make_deep_model(InputSize):
     deepModel=Sequential()
@@ -70,25 +85,31 @@ if __name__ == '__main__':
     model1=Word2Vec.load("400features_5minwords_10context")
     model2=Doc2Vec.load("400features_1minwords_10context_dm")
     model3=Doc2Vec.load("400features_1minwords_10context_bow")
+    print("model load over")
     labeled_reviews,test_reviews=make_reviews(labeled_df,test_df)
     train_w2v_x=scale(get_reviews_vector(model1,labeled_reviews))
     test_w2v_x=scale(get_reviews_vector(model1,test_reviews))
+    print("w2v load over")
     train_dm_x=get_data_array(model2,labeled_df)
     test_dm_x=get_data_array(model2,test_df)
+    print("dm load over")
     train_bow_x=get_data_array(model3,labeled_df)
     test_bow_x=get_data_array(model3,test_df)
+    print("bow load over")
     train_tfidf_x,test_tfidf_x=get_vector(labeled_reviews,test_reviews)
     train_x=sparse.hstack((train_w2v_x,train_dm_x,train_bow_x,train_tfidf_x))
     test_x=sparse.hstack((test_w2v_x,test_dm_x,test_bow_x,test_tfidf_x))
-    train_y=labeled_df['sentiment'].values
-    fit_x,fit_y,val_x,val_y=train_test_split(train_x,train_y,test_size=0.1,random_state=0)
+    print("tfidf load over")
+    train_y=one_hot_y(labeled_df['sentiment'].values)
+    fit_x,val_x,fit_y,val_y=train_test_split(train_x,train_y,test_size=0.1,random_state=0)
     deepModel=make_deep_model(train_x.shape[1])
     deepModel.fit(fit_x,fit_y,batch_size=32,epochs=100,verbose=1,validation_data=(val_x,val_y),shuffle=True)
-    pred_y=deepModel.predict(test_x)
+    pred=deepModel.predict(test_x)
     # lr_model=LogisticRegression()
     # lr_model.fit(train_x,train_y)
     # pred_y=lr_model.predict_proba(test_x)[:,1]
     # with h5py.File("pred2.h5") as h:
     #     h.create_dataset("pred",data=pred_y)
+    pred_y=onehot_sample(pred)
     submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
     submission.to_csv('submission.csv',index=False,quoting=3)
