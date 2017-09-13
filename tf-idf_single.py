@@ -27,7 +27,10 @@ def make_reviews(labeled_df,test_df):
     return labeled_reviews,test_reviews
 
 def get_vector(labeled_reviews,test_reviews):
-    vectorizer=TfidfVectorizer(max_features=50000,ngram_range=(1,3),sublinear_tf=True)
+    vectorizer=TfidfVectorizer(min_df=3,max_features=None, 
+        strip_accents='unicode', analyzer='word',token_pattern=r'\w{1,}',
+        ngram_range=(1,2), use_idf=1,smooth_idf=1,sublinear_tf=1,
+        stop_words = 'english')
     labeled_string,test_string=[],[]
     for review in labeled_reviews:
         labeled_string.append(" ".join(review))
@@ -50,8 +53,9 @@ if __name__ == '__main__':
     labeled_reviews,test_reviews=make_reviews(labeled_df,test_df)
     train_x,test_x=get_vector(labeled_reviews,test_reviews)
     train_y=labeled_df['sentiment'].values
+    print(shape(train_x))
     sgd_model=get_sgd_model()
     sgd_model.fit(train_x,train_y)
-    pred_y=sgd_model.predict(test_x)
+    pred_y=sgd_model.predict_proba(test_x)[:,1]
     submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
     submission.to_csv('submission.csv',index=False,quoting=3)
