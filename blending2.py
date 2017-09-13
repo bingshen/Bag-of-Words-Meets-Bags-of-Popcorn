@@ -17,7 +17,7 @@ import nltk
 from numpy import *
 
 def get_reviews_vector(model,reviews):
-    review_vector=zeros((len(reviews),400))
+    review_vector=zeros((len(reviews),1000))
     for (i,review) in enumerate(reviews):
         nword=0
         for word in review:
@@ -28,7 +28,7 @@ def get_reviews_vector(model,reviews):
     return review_vector
 
 def get_data_array(model,dataframe):
-    data_array=zeros((dataframe.values.shape[0],400))
+    data_array=zeros((dataframe.values.shape[0],1000))
     for (i,label_id) in enumerate(dataframe['id'].values):
         data_array[i,:]=model.docvecs[label_id]
     return scale(data_array)
@@ -42,7 +42,7 @@ def make_reviews(labeled_df,test_df):
     return labeled_reviews,test_reviews
 
 def get_vector(labeled_reviews,test_reviews):
-    vectorizer=TfidfVectorizer(max_features=50000,ngram_range=(1,3),sublinear_tf=True)
+    vectorizer=TfidfVectorizer(ngram_range=(1,3),sublinear_tf=True)
     labeled_string,test_string=[],[]
     for review in labeled_reviews:
         labeled_string.append(" ".join(review))
@@ -82,9 +82,9 @@ def make_deep_model(InputSize):
 if __name__ == '__main__':
     labeled_df=pd.read_csv("data\\labeledTrainData.tsv",delimiter="\t",quoting=3)
     test_df=pd.read_csv("data\\testData.tsv",delimiter="\t",quoting=3)
-    model1=Word2Vec.load("400features_5minwords_10context")
-    model2=Doc2Vec.load("400features_1minwords_10context_dm")
-    model3=Doc2Vec.load("400features_1minwords_10context_bow")
+    model1=Word2Vec.load("1000features_5minwords_10context")
+    model2=Doc2Vec.load("1000features_1minwords_10context_dm")
+    model3=Doc2Vec.load("1000features_1minwords_10context_bow")
     print("model load over")
     labeled_reviews,test_reviews=make_reviews(labeled_df,test_df)
     train_w2v_x=scale(get_reviews_vector(model1,labeled_reviews))
@@ -100,19 +100,19 @@ if __name__ == '__main__':
     train_x=sparse.hstack((train_w2v_x,train_dm_x,train_bow_x,train_tfidf_x))
     test_x=sparse.hstack((test_w2v_x,test_dm_x,test_bow_x,test_tfidf_x))
     print("tfidf load over")
-    train_y=one_hot_y(labeled_df['sentiment'].values)
-    print(shape(train_x),shape(train_y))
-    fit_x,val_x,fit_y,val_y=train_test_split(train_x,train_y,test_size=0.1,random_state=0)
-    print(shape(fit_x),shape(val_x),shape(fit_y),shape(val_y))
-    deepModel=make_deep_model(train_x.shape[1])
-    deepModel.fit(fit_x.toarray(),fit_y,batch_size=256,epochs=15,verbose=1,validation_data=(val_x.toarray(),val_y),shuffle=True)
-    pred=deepModel.predict(test_x.toarray())
-    # lr_model=LogisticRegression()
-    # lr_model.fit(train_x,train_y)
-    # pred_y=lr_model.predict_proba(test_x)[:,1]
+    train_y=labeled_df['sentiment'].values
+    # print(shape(train_x),shape(train_y))
+    # fit_x,val_x,fit_y,val_y=train_test_split(train_x,train_y,test_size=0.1,random_state=0)
+    # print(shape(fit_x),shape(val_x),shape(fit_y),shape(val_y))
+    # deepModel=make_deep_model(train_x.shape[1])
+    # deepModel.fit(fit_x.toarray(),fit_y,batch_size=256,epochs=15,verbose=1,validation_data=(val_x.toarray(),val_y),shuffle=True)
+    # pred=deepModel.predict(test_x.toarray())
+    lr_model=LogisticRegression()
+    lr_model.fit(train_x,train_y)
+    pred_y=lr_model.predict_proba(test_x)[:,1]
     # with h5py.File("pred2.h5") as h:
     #     h.create_dataset("pred",data=pred_y)
-    print(pred)
-    pred_y=onehot_sample(pred)
+    # print(pred)
+    # pred_y=onehot_sample(pred)
     submission=pd.DataFrame({'id':test_df['id'],'sentiment':pred_y})
     submission.to_csv('submission.csv',index=False,quoting=3)
